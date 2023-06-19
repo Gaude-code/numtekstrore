@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Gloudemans\Shoppingcart\Facades\Cart;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,7 +18,26 @@ use Illuminate\Support\Facades\Route;
 });*/
 
 //Route de l'ensemble de produits
-Route::get('/', 'App\Http\Controllers\ProductController@index');
+
+Route::get('/', 'App\Http\Controllers\ProductController@index')->name('products.index');
+
+Route::get('/panier', 'App\Http\Controllers\CartController@index')->name('cart.index');
+
+Route::get('/videpanier', function () {
+    Cart::destroy();
+
+});
+
 
 //Route d'affichage d'un produit
 Route::get('/{slug}', 'App\Http\Controllers\ProductController@show')->name('products.show');
+
+
+//Route du panier
+
+
+
+Route::post('/panier/ajouter', 'App\Http\Controllers\CartController@store')->name('cart.store');
+
+
+
