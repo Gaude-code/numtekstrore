@@ -15,6 +15,8 @@
 <!-- Custom styles for this template -->
 <link href="{{asset('css/album.css')}}" rel="stylesheet">
 
+<link rel="stylesheet" href="{{asset('css/font-awesome.min.css')}}">
+
 </head>
 
 <body>

@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product;
-use Gloudemans\Shoppingcart\Facades\Cart;
+use Stripe\Stripe;
 use Illuminate\Http\Request;
+use Gloudemans\Shoppingcart\Facades\Cart;
 
-class CartController extends Controller
+
+class checkoutController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -16,7 +17,28 @@ class CartController extends Controller
     public function index()
     {
         //
-        return view('cart.index');
+        $stripe = new \Stripe\StripeClient('sk_test_VePHdqKTYQjKNInc7u56JBrQ');
+
+        $checkout_session = $stripe->checkout->sessions->create([
+            'line_items' => [[
+              'price_data' => [
+                'currency' => 'eur',
+                'product_data' => [
+                  'name' => 'T-shirt',
+                ],
+                'unit_amount' => 2000,
+              ],
+              'quantity' => 1,
+            ]],
+            'mode' => 'payment',
+            'success_url' => 'http://localhost:4242/success',
+            'cancel_url' => 'http://localhost:4242/cancel',
+
+
+          ]);
+
+        dd($checkout_session);
+        return view('checkout.index');
     }
 
     /**
@@ -38,22 +60,6 @@ class CartController extends Controller
     public function store(Request $request)
     {
         //
-
-        $duplicata = Cart::search(function ($cartItem, $rowId) use ($request){
-            return $cartItem->id == $request->product_id;
-        });
-
-        if ($duplicata->isNotEmpty()) {
-            return redirect()->route('products.index')->with('success', 'Leproduit a deja été ajouté');
-        }
-
-        $product = Product::find($request->product_id);
-
-        //dd($request->id, $request->title, $request->price);
-        Cart::add($product->id, $product->title, 1, $product->price)
-            ->associate('App\Models\Product');
-
-        return redirect()->route('products.index')->with('success', 'Le produit a bien été ajouté');
     }
 
     /**
@@ -96,11 +102,8 @@ class CartController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($rowId)
+    public function destroy($id)
     {
         //
-        Cart::remove($rowId);
-
-        return back()->with('success', 'Le produit a été supprimé');
     }
 }
